@@ -1,0 +1,95 @@
+---
+title: "cutthroat_trout"
+format: html
+editor: visual
+execute:
+  warning: false
+  messages: false
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+
+```{r}
+
+mack_verts <- read_csv(here("data", "AS00601.csv"))
+
+names(mack_verts) <- snakecase::to_lower_camel_case(names(mack_verts))
+
+mack_verts
+
+```
+
+
+```{r}
+mc_wt_5 <- mack_verts$weight[5]
+
+lc_length_8_to_20 <- mack_verts$length1[8:20]
+
+mc_dates <- mack_verts$sampledate
+```
+
+```{r}
+
+mc_salamanders <- mack_verts %>%
+  filter(species == "DITE")
+
+mc_salamanders
+
+length(unique(mc_salamanders$species))
+
+```
+
+```{r}
+
+# Scatterplot length1 vs weight
+
+scatter_length_weight <- ggplot(data = mack_verts, aes(x = weight, y = length1)) +
+  geom_point(color = "green",
+                 size = 1) +
+  labs(title = "Length vs Weight of Salamanders",
+       subtitle = "in Mack Creek, Oregon",
+       x = "Length (in cm)",
+       y = "Weight (in g)")
+
+scatter_length_weight
+```
+
+
+```{r}
+ggsave(plot = scatter_length_weight,
+       here::here("figs", "salamander_size.png"))
+
+```
+
+## Subsetting cutthroat trout and graphing length vs. weight
+
+```{r}
+
+mc_trout <- mack_verts %>%
+  filter(species == "ONCL")
+
+oncl_scatter <- ggplot(data = mc_trout, aes(x = weight, y = length1)) +
+  geom_point(aes(color = reach)) +
+  scale_color_manual(values = c("green", "red", "blue")) +
+  facet_wrap(~reach, ncol = 3) +
+  labs(x = "Weight (in g)",
+       y = "Length (in cm)",
+       title = "Length vs. Width of Cutthroat Trout",
+       subtitle = "comparing lower, middle and upper reach")
+  
+
+oncl_scatter
+
+ggsave(plot = oncl_scatter,
+       here::here ("figs", "cutthroat_size.png"))
+
+
+```
+
+
+
